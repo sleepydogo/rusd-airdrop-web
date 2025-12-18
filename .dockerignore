@@ -17,4 +17,6 @@ node_modules/
 README.md
 *.md
 .DS_Store
-solana-engine/
+solana-engine/node_modules/
+solana-engine/target/
+solana-engine/.anchor/
