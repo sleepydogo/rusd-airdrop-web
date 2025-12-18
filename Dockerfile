@@ -1,21 +1,7 @@
-# Multi-stage Dockerfile for rUSD Airdrop
-FROM node:18 AS node-base
-
-# Install Solana CLI
-RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)" && \
-    export PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
-
-# Install ts-node globally
-RUN npm install -g ts-node typescript
-
-# Python stage
+# Dockerfile for rUSD Airdrop
 FROM python:3.11-slim
 
-# Copy Solana CLI from node stage
-COPY --from=node-base /root/.local/share/solana /root/.local/share/solana
-ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
-
-# Install Node.js and npm
+# Install Node.js, npm, and yarn
 RUN apt-get update && apt-get install -y \
     curl \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
