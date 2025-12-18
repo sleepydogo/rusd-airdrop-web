@@ -20,7 +20,7 @@ README.md
 solana-engine/node_modules/
 solana-engine/target/debug/
 solana-engine/target/deploy/
-solana-engine/target/idl/
 solana-engine/target/release/
 solana-engine/.anchor/
 # Keep solana-engine/target/types/ - needed for TypeScript compilation
+# Keep solana-engine/target/idl/ - needed for Anchor workspace
