@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy solana-engine (needed for minting)
-COPY ../solana-engine /app/solana-engine
+COPY ./solana-engine /app/solana-engine
 WORKDIR /app/solana-engine
 RUN yarn install
 

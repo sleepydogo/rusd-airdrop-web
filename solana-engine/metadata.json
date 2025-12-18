@@ -1,0 +1,33 @@
+{
+  "name": "Robot USD",
+  "symbol": "rUSD",
+  "description": "Stablecoin designed for robot and IoT service payments on the x402 protocol",
+  "image": "https://raw.githubusercontent.com/sleepydogo/robotsx402/main/solana-engine/static/logo.png",
+  "attributes": [
+    {
+      "trait_type": "Type",
+      "value": "Stablecoin"
+    },
+    {
+      "trait_type": "Use Case",
+      "value": "Robot & IoT Payments"
+    },
+    {
+      "trait_type": "Protocol",
+      "value": "x402"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Solana"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://raw.githubusercontent.com/sleepydogo/robotsx402/main/solana-engine/static/logo.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "currency"
+  }
+}
