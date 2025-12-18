@@ -1,5 +1,8 @@
 // Configuration
-const BACKEND_URL = 'http://localhost:8002';
+// Use same origin in production, localhost in development
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8002'
+    : window.location.origin;
 const MINT_ADDRESS = '8r2xLuDRsf6sVrdgTKoBM2gmWoixfXb5fzLyDqdEHtMX';
 const RPC_URL = 'https://api.devnet.solana.com';
 

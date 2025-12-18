@@ -5,6 +5,7 @@ Handles airdrop requests and mints rUSD tokens to user wallets
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import subprocess
 import os
@@ -24,8 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static files
-app.mount("/static", StaticFiles(directory="."), name="static")
+# Serve static files (logos, images)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configuration
 SOLANA_ENGINE_PATH = Path(__file__).parent.parent / "solana-engine"
@@ -75,6 +76,21 @@ class AirdropResponse(BaseModel):
 
 @app.get("/")
 async def root():
+    """Serve the main application"""
+    return FileResponse("index.html")
+
+@app.get("/styles.css")
+async def styles():
+    """Serve CSS file"""
+    return FileResponse("styles.css", media_type="text/css")
+
+@app.get("/app.js")
+async def app_js():
+    """Serve JavaScript file"""
+    return FileResponse("app.js", media_type="application/javascript")
+
+@app.get("/api/health")
+async def health_check():
     """Health check endpoint"""
     return {
         "status": "ok",
