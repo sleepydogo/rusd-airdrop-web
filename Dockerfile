@@ -1,10 +1,10 @@
 # Dockerfile for rUSD Airdrop
 FROM python:3.11-slim
 
-# Install Node.js, npm, and yarn
+# Install Node.js 20, npm, and yarn
 RUN apt-get update && apt-get install -y \
     curl \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g ts-node typescript yarn \
     && apt-get clean \
