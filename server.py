@@ -49,14 +49,22 @@ def setup_wallet():
             wallet_data = base64.b64decode(wallet_base64)
             with open(wallet_path, 'w') as f:
                 f.write(wallet_data.decode('utf-8'))
-            print(f"✅ Wallet loaded from SOLANA_WALLET_BASE64")
+            print(f"✅ Wallet loaded from SOLANA_WALLET_BASE64 to {wallet_path}")
             return wallet_path
         except Exception as e:
-            print(f"⚠️  Error decoding wallet: {e}")
-            return os.path.expanduser("~/.config/solana/id.json")
+            print(f"❌ Error decoding wallet: {e}")
+            raise RuntimeError(f"Failed to decode SOLANA_WALLET_BASE64: {e}")
     else:
         # Local development: use local wallet file
-        return os.path.expanduser("~/.config/solana/id.json")
+        local_path = os.path.expanduser("~/.config/solana/id.json")
+        if os.path.exists(local_path):
+            print(f"✅ Using local wallet: {local_path}")
+            return local_path
+        else:
+            raise RuntimeError(
+                "No wallet found! Please set SOLANA_WALLET_BASE64 environment variable "
+                "or ensure ~/.config/solana/id.json exists"
+            )
 
 WALLET_PATH = setup_wallet()
 
@@ -135,6 +143,15 @@ async def request_airdrop(request: AirdropRequest):
         # Execute mint script
         print(f"🎁 Processing airdrop: {amount} rUSD -> {wallet_address}")
 
+        # Verify wallet exists
+        if not os.path.exists(WALLET_PATH):
+            raise HTTPException(
+                status_code=500,
+                detail=f"Wallet not found at {WALLET_PATH}. Please configure SOLANA_WALLET_BASE64 environment variable."
+            )
+
+        print(f"📝 Using wallet: {WALLET_PATH}")
+
         # Change to solana-engine directory
         os.chdir(SOLANA_ENGINE_PATH)
 
@@ -142,6 +159,8 @@ async def request_airdrop(request: AirdropRequest):
         env = os.environ.copy()
         env["ANCHOR_PROVIDER_URL"] = os.getenv("ANCHOR_PROVIDER_URL", "https://api.devnet.solana.com")
         env["ANCHOR_WALLET"] = WALLET_PATH
+
+        print(f"🔧 Environment: ANCHOR_WALLET={env['ANCHOR_WALLET']}, ANCHOR_PROVIDER_URL={env['ANCHOR_PROVIDER_URL']}")
 
         # Run the TypeScript minting script
         result = subprocess.run(
