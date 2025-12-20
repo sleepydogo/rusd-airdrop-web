@@ -25,14 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static files (logos, images)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 # Configuration
-SOLANA_ENGINE_PATH = Path(__file__).parent.parent / "solana-engine"
+BASE_DIR = Path(__file__).parent.resolve()  # Absolute path to server.py directory
+SOLANA_ENGINE_PATH = BASE_DIR.parent / "solana-engine"
 MINT_SCRIPT_PATH = SOLANA_ENGINE_PATH / "scripts" / "mint-rusd-to-user.ts"
 AIRDROP_AMOUNT = 50  # rUSD per airdrop
 COOLDOWN_HOURS = 24  # Hours between airdrops per wallet
+
+# Serve static files (logos, images) with absolute path
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 # Simple in-memory storage for cooldowns (replace with Redis/DB in production)
 airdrop_history = {}
@@ -85,17 +86,17 @@ class AirdropResponse(BaseModel):
 @app.get("/")
 async def root():
     """Serve the main application"""
-    return FileResponse("index.html")
+    return FileResponse(BASE_DIR / "index.html")
 
 @app.get("/styles.css")
 async def styles():
     """Serve CSS file"""
-    return FileResponse("styles.css", media_type="text/css")
+    return FileResponse(BASE_DIR / "styles.css", media_type="text/css")
 
 @app.get("/app.js")
 async def app_js():
     """Serve JavaScript file"""
-    return FileResponse("app.js", media_type="application/javascript")
+    return FileResponse(BASE_DIR / "app.js", media_type="application/javascript")
 
 @app.get("/api/health")
 async def health_check():
@@ -152,9 +153,6 @@ async def request_airdrop(request: AirdropRequest):
 
         print(f"📝 Using wallet: {WALLET_PATH}")
 
-        # Change to solana-engine directory
-        os.chdir(SOLANA_ENGINE_PATH)
-
         # Prepare environment variables for Anchor
         env = os.environ.copy()
         env["ANCHOR_PROVIDER_URL"] = os.getenv("ANCHOR_PROVIDER_URL", "https://api.devnet.solana.com")
@@ -162,13 +160,14 @@ async def request_airdrop(request: AirdropRequest):
 
         print(f"🔧 Environment: ANCHOR_WALLET={env['ANCHOR_WALLET']}, ANCHOR_PROVIDER_URL={env['ANCHOR_PROVIDER_URL']}")
 
-        # Run the TypeScript minting script
+        # Run the TypeScript minting script (run from solana-engine directory)
         result = subprocess.run(
             ["ts-node", str(MINT_SCRIPT_PATH), wallet_address, str(amount)],
             capture_output=True,
             text=True,
             timeout=60,  # 60 second timeout
-            env=env
+            env=env,
+            cwd=str(SOLANA_ENGINE_PATH)  # Run in solana-engine directory without changing parent process CWD
         )
 
         # Parse output to get transaction signature
